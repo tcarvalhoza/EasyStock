@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Contracts;
 
 use App\Models\Sale;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface SaleServiceInterface
 {
@@ -49,6 +50,14 @@ interface SaleServiceInterface
      * @return Sale|null Venda encontrada ou null.
      */
     public function findById(int $id): ?Sale;
+
+    /**
+     * Retorna a listagem paginada de vendas com filtros opcionais.
+     *
+     * @param array{status?: string, user_id?: int, per_page?: int} $filters Filtros de busca.
+     * @return LengthAwarePaginator
+     */
+    public function listSales(array $filters = []): LengthAwarePaginator;
 
     /**
      * Gera o texto do cupom fiscal de uma venda.

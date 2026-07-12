@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::middleware('role:admin,manager,cashier')->group(function () {
+        Route::get('/sales', [SaleController::class, 'index']);
         Route::post('/sales', [SaleController::class, 'store']);
         Route::get('/sales/{id}', [SaleController::class, 'show']);
         Route::post('/sales/{id}/complete', [SaleController::class, 'complete']);

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Services\Contracts\SaleServiceInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -104,6 +105,26 @@ class SaleService implements SaleServiceInterface
     public function findById(int $id): ?Sale
     {
         return Sale::with('items.product')->find($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listSales(array $filters = []): LengthAwarePaginator
+    {
+        $query = Sale::with(['items.product', 'user'])->orderBy('created_at', 'desc');
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', (int) $filters['user_id']);
+        }
+
+        $perPage = !empty($filters['per_page']) ? (int) $filters['per_page'] : 15;
+
+        return $query->paginate($perPage);
     }
 
     /**

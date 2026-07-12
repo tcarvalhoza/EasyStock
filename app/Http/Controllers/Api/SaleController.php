@@ -17,6 +17,19 @@ class SaleController extends Controller
     ) {}
 
     /**
+     * Lista vendas paginadas com filtros opcionais (status, user_id, per_page).
+     *
+     * @param Request $request Filtros enviados na query string.
+     * @return JsonResponse Paginador serializado com status 200.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $sales = $this->saleService->listSales($request->only(['status', 'user_id', 'per_page']));
+
+        return response()->json($sales);
+    }
+
+    /**
      * Cria uma nova venda com os itens informados.
      *
      * @param Request $request Itens da venda (product_id e quantity).
