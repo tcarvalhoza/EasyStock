@@ -306,6 +306,43 @@ Response:
 
 ---
 
+## Deploy on Fly.io
+
+The application is packaged in a single container with PHP-FPM + Nginx + Supervisor, ready for Fly.io.
+
+A `fly.toml` is already provided. The default app name is `easystock-api`; change it if the name is already taken.
+
+### Install the Fly.io CLI
+
+```bash
+curl -L https://fly.io/install.sh | sh
+```
+
+Authenticate:
+
+```bash
+flyctl auth login
+```
+
+### Create the app and deploy
+
+```bash
+flyctl apps create easystock-api
+flyctl secrets set APP_KEY='<YOUR_APP_KEY>' \
+  APP_ENV=production \
+  APP_DEBUG=false \
+  APP_URL='https://easystock-api.fly.dev' \
+  DB_CONNECTION=sqlite \
+  DB_DATABASE=/var/www/storage/database.sqlite
+flyctl deploy
+```
+
+> **Tip:** generate a secure `APP_KEY` with `php artisan key:generate --show` and set it as a secret. Without it, the container will generate a temporary key on each startup, invalidating sessions and cached data.
+
+The container will automatically run `php artisan migrate --force` on startup and optimize Laravel caches when `APP_ENV=production`.
+
+Access the deployed app at `https://easystock-api.fly.dev`.
+
 ## Deploy on Koyeb
 
 The application is packaged in a single container with PHP-FPM + Nginx + Supervisor, ready for Koyeb.

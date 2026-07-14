@@ -36,9 +36,11 @@ if [ "$DB_CONNECTION" = "sqlite" ] && [ -n "$DB_DATABASE" ]; then
     mkdir -p "$(dirname "$DB_DATABASE")"
     touch "$DB_DATABASE"
     php artisan migrate --force --ansi || echo "Migration step failed. Continuing startup..."
+    php artisan db:seed --force --ansi || echo "Seeding step failed. Continuing startup..."
 elif [ -n "$DB_HOST" ]; then
     echo "Running database migrations..."
     php artisan migrate --force --ansi || echo "Migration step failed or database is unreachable. Continuing startup..."
+    php artisan db:seed --force --ansi || echo "Seeding step failed. Continuing startup..."
 fi
 
 # Cache Laravel configuration in production for better performance.
