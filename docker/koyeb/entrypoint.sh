@@ -43,6 +43,10 @@ elif [ -n "$DB_HOST" ]; then
     php artisan db:seed --force --ansi || echo "Seeding step failed. Continuing startup..."
 fi
 
+# Re-apply ownership because migrations/seeders may have created files as root.
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
 # Cache Laravel configuration in production for better performance.
 if [ "$APP_ENV" = "production" ]; then
     echo "Optimizing Laravel for production..."
