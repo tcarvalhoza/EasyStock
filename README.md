@@ -306,6 +306,73 @@ Response:
 
 ---
 
+## Deploy on Koyeb
+
+The application is packaged in a single container with PHP-FPM + Nginx + Supervisor, ready for Koyeb.
+
+### Build and run locally (Docker Compose)
+
+```bash
+docker-compose up -d --build
+```
+
+The API will be available at `http://localhost:8000`.
+
+### Required environment variables for production
+
+Configure these in the Koyeb dashboard (or via CLI) when creating the service:
+
+| Variable | Description |
+|---|---|
+| `APP_KEY` | Laravel application key — generate with `php artisan key:generate --show` locally and paste the value |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_URL` | Public URL of the Koyeb service, e.g. `https://easystock-<org>.koyeb.app` |
+| `DB_CONNECTION` | `mysql` or `pgsql` |
+| `DB_HOST` | Database host |
+| `DB_PORT` | Database port |
+| `DB_DATABASE` | Database name |
+| `DB_USERNAME` | Database user |
+| `DB_PASSWORD` | Database password |
+
+> **Tip:** generate a secure `APP_KEY` with `php artisan key:generate --show` and set it as an environment variable in Koyeb. Without it, the container will generate a temporary key on each startup, invalidating sessions and cached data.
+
+### Deploy from GitHub (Dockerfile builder)
+
+1. Push the repository to GitHub.
+2. In the [Koyeb control panel](https://app.koyeb.com), click **Create Web Service**.
+3. Select **GitHub** and choose the `EasyStock` repository.
+4. Choose **Dockerfile** as the builder.
+5. Add the environment variables listed above.
+6. Expose port `8080` and route `/` to it.
+7. Deploy.
+
+The container will automatically run `php artisan migrate --force` on startup (if `DB_HOST` is set) and optimize Laravel caches when `APP_ENV=production`.
+
+### Deploy using the Koyeb CLI
+
+```bash
+# Install the Koyeb CLI and authenticate first:
+# https://www.koyeb.com/docs/cli/installation
+
+koyeb app init easystock \
+  --git github.com/<YOUR_GITHUB_USERNAME>/EasyStock \
+  --git-branch main \
+  --git-builder docker \
+  --ports 8080:http \
+  --routes '/:8080' \
+  --env APP_KEY='<YOUR_APP_KEY>' \
+  --env APP_ENV=production \
+  --env APP_DEBUG=false \
+  --env APP_URL='https://easystock-<ORG>.koyeb.app' \
+  --env DB_CONNECTION=mysql \
+  --env DB_HOST='<DB_HOST>' \
+  --env DB_PORT=3306 \
+  --env DB_DATABASE=easystock \
+  --env DB_USERNAME='<DB_USER>' \
+  --env DB_PASSWORD='<DB_PASSWORD>'
+```
+
 ## License
 
 MIT
